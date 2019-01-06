@@ -1,15 +1,23 @@
 # get reddit data through praw and serve it as json
 
+import os
 import json
 import praw
 from textblob import TextBlob
+
 
 class Rdb:
     """pulls data from praw (100 submissions from specified subreddit/sort mode) and serves to vue
     """
 
     def __init__(self):
-        self.reddit = praw.Reddit("bot1", user_agent="rdb - testing")
+        reddit = praw.Reddit(
+            client_id=os.environ.get("CLIENT_ID"),
+            client_secret=os.environ.get("CLIENT_SECRET"),
+            password=os.environ.get("PASSWORD"),
+            user_agent="rdb heroku demo",
+            username=os.environ.get("USERNAME"),
+        )
 
     def get_submissions(self, subname="all", sortmode="hot"):
         """[Return 100 submissions from a specified subreddit + sort mode.]
