@@ -20,3 +20,17 @@ self.reddit = praw.Reddit(
             user_agent="rdb heroku demo",
             username=os.environ.get("USERNAME"))
 ```
+
+The 'STATS' tab of the site uses Heroku Scheduler (can add it to your Heroku app through Resources) to call 'python datagrabber.py' periodically. The datagrabber.py file calls the reddit API and stores data using db.py. The db.py file uses Heroku Postgres (postgresql via psycopg2) as the database backend. If you set up a Heroku Postgres resource, you get an additional environment variable called DATABASE_URL which you will need to use instead of your usual connection string with host/username/pw etc. To connect to Heroku Postgres, db.py is modified as follows:
+
+```
+import os
+
+DATABASE_URL = os.environ["DATABASE_URL"]
+
+def example():
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+    cur = conn.cursor()
+    ...
+
+```
