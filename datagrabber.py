@@ -1,5 +1,6 @@
 """grab data from praw and store it periodically using schedule"""
 
+import os
 import time
 import praw
 import schedule
@@ -7,7 +8,13 @@ import db
 from textblob import TextBlob
 
 
-reddit = praw.Reddit("bot1", user_agent="rdb - testing praw features")
+reddit = self.reddit = praw.Reddit(
+    client_id=os.environ.get("CLIENT_ID"),
+    client_secret=os.environ.get("CLIENT_SECRET"),
+    password=os.environ.get("PASSWORD"),
+    user_agent="rdb heroku demo",
+    username=os.environ.get("USERNAME"),
+)
 
 
 def get_submission_titles(subname="all", sortmode="hot"):
@@ -39,7 +46,7 @@ def get_submission_titles(subname="all", sortmode="hot"):
     return data
 
 
-def job(message="Gathering sentiment data..."):
+def job():
     """[Periodically get average polarity and subjectivity data of submission titles
     """
     polarity_values = []
@@ -59,15 +66,5 @@ def job(message="Gathering sentiment data..."):
     db.insert(date, avg_polarity, avg_subjectivity)
 
 
-mins = 60
-schedule.every(mins).minutes.do(job)
-print(f"+ Gathering data every {mins} minute(s)...")
-print("+ Ctrl-C to stop")
-
-try:
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("+ datagrabber STOPPED")
-    pass
+if __name__ == "__main__":
+    job()

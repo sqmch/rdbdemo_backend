@@ -1,27 +1,29 @@
 """store rdb data with postgresql"""
 
+import os
 import psycopg2
 import psycopg2.extras
 import json
 
 
+DATABASE_URL = os.environ["DATABASE_URL"]
+
+
 def create_table():
-    conn_string = "dbname='rdbtest' user='postgres' password='teretere' host='localhost' port='5432'"
-    conn = psycopg2.connect(conn_string)
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS rdb (id SERIAL PRIMARY KEY,
-                                            fulldate TEXT,
-                                            avg_title_polarity TEXT,
-                                            avg_title_subjectivity TEXT)"""
+                                           fulldate TEXT,
+                                           avg_title_polarity TEXT,
+                                           avg_title_subjectivity TEXT)"""
     )
     conn.commit()
     conn.close()
 
 
 def insert(fulldate, avg_title_polarity, avg_title_subjectivity):
-    conn_string = "dbname='rdbtest' user='postgres' password='teretere' host='localhost' port='5432'"
-    conn = psycopg2.connect(conn_string)
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO rdb (fulldate, avg_title_polarity, avg_title_subjectivity) VALUES(%s, %s, %s)",
@@ -32,8 +34,7 @@ def insert(fulldate, avg_title_polarity, avg_title_subjectivity):
 
 
 def grab_all():
-    conn_string = "dbname='rdbtest' user='postgres' password='teretere' host='localhost' port='5432'"
-    conn = psycopg2.connect(conn_string)
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("SELECT * FROM rdb")
     data = cur.fetchall()
